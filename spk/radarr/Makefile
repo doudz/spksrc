@@ -1,11 +1,11 @@
 SPK_NAME = radarr
 SPK_VERS = $(shell date +%Y%m%d)
-SPK_REV = 9
+SPK_REV = 14
 SPK_ICON = src/radarr.png
 
 REQUIRED_DSM = 5.0
 # Mono not supported on ppc platforms. C.f. cross/mono/Makefile and references therein for details.
-UNSUPPORTED_ARCHS = $(PPC_ARCHES)
+UNSUPPORTED_ARCHS = $(PPC_ARCHS)
 
 DEPENDS = cross/busybox cross/curl cross/mediainfo cross/sqlite cross/radarr
 
@@ -16,7 +16,7 @@ DESCRIPTION  = Radarr is a movie manager like Couchpotato, but based on the Sona
 RELOAD_UI = yes
 STARTABLE = yes
 DISPLAY_NAME = Radarr
-CHANGELOG = "Add workaround for mono bug with armv5/88f6281"
+CHANGELOG = "Update Radarr to v3.0.1.4259"
 
 HOMEPAGE = https://radarr.video/
 LICENSE  = GPLv3

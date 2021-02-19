@@ -1,30 +1,29 @@
 SPK_NAME = synocli-disk
-SPK_VERS = 2.0
-SPK_REV = 2
+SPK_VERS = 3.1
+SPK_REV = 4
 SPK_ICON = src/synocli-disk.png
 
-include ../../mk/spksrc.common.mk
-
-DEPENDS = cross/e2fsprogs cross/fuse cross/testdisk cross/ncdu cross/davfs2 cross/lsscsi cross/ddrescue
+DEPENDS  = cross/ntfs-3g_ntfsprogs cross/e2fsprogs cross/fuse cross/testdisk
+DEPENDS += cross/ncdu cross/davfs2 cross/lsscsi cross/ddrescue
+OPTIONAL_DEPENDS = cross/dar
 
 MAINTAINER = SynoCommunity
 DISPLAY_NAME = SynoCli Disk Tools
 
 OPTIONAL_DESC =
 
-ifneq ($(findstring $(ARCH),$(ARM5_ARCHES) hi3535 powerpc ppc824x ppc853x ppc854x),$(ARCH))
+include ../../mk/spksrc.archs.mk
+
+ifneq ($(findstring $(ARCH),$(ARMv5_ARCHS) $(ARMv7L_ARCHS) $(OLD_PPC_ARCHS)),$(ARCH))
 # DAR: archs without C++11 support are not supported
 DEPENDS += cross/dar
-OPTIONAL_DESC += "dar, "
+OPTIONAL_DESC := $(OPTIONAL_DESC)", dar"
 endif
 
-ifeq ($(OPTIONAL_DESC),)
-OPTIONAL_DESC = " "
-endif
 
-DESCRIPTION = "SynoCli Disk Tools provides a set of small command-line utilities: e2fsprogs, fuse, testdisk, ncdu, davfs2, lsscsi,$(OPTIONAL_DESC)ddrescure."
+DESCRIPTION = "SynoCli Disk Tools provides a set of small command-line utilities: e2fsprogs, fuse, ntfs-3g/ntfsprogs, testdisk, ncdu, davfs2, lsscsi, ddrescure$(OPTIONAL_DESC)."
 STARTABLE = no
-CHANGELOG = "1. Add ddrescue<br/>2. Fix symlinks"
+CHANGELOG = "1. Update e2fsprogs to v1.45.6.<br/>2. Update davfs2 to v1.6.0 and openssl 1.1.<br/>3. Update lsscsi to v0.31.<br/>4. Update ddrescue to v1.25."
 
 HOMEPAGE = https://github.com/SynoCommunity/spksrc/wiki/FAQ-SynoCliDisk
 LICENSE  = Each tool is licensed under it\'s respective license.
@@ -36,6 +35,8 @@ SPK_COMMANDS += sbin/e2mmpstatus sbin/e2scrub sbin/e2scrub_all sbin/e2undo sbin/
 SPK_COMMANDS += sbin/fsck sbin/fsck.ext2 sbin/fsck.ext3 sbin/fsck.ext4
 SPK_COMMANDS += sbin/logsave sbin/mke2fs sbin/mkfs.ext2 sbin/mkfs.ext3 sbin/mkfs.ext4
 SPK_COMMANDS += sbin/mklost+found sbin/resize2fs sbin/tune2fs sbin/uuidd
+SPK_COMMANDS += sbin/mkntfs sbin/ntfsclone sbin/ntfscp sbin/ntfslabel sbin/ntfsresize sbin/ntfsundelete
+SPK_COMMANDS += bin/ntfs-3g.probe bin/ntfscat bin/ntfscluster bin/ntfscmp bin/ntfsfix bin/ntfsinfo bin/ntfsls
 
 SPK_COMMANDS += bin/fusermount bin/ulockmgr_server
 SPK_COMMANDS += bin/testdisk bin/photorec bin/fidentify

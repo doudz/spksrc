@@ -2,7 +2,7 @@
 # 
 # prerequisites:
 # - cross/module depends on native/go only
-# - module does not require kernel (REQ_KERNEL)
+# - module does not require kernel (REQUIRE_KERNEL)
 # 
 # remarks:
 # - Restriction for minimal DSM version is not supported (toolchains are not used for go builds)
@@ -65,18 +65,11 @@ go_install_target:
 
 #####
 
-ifneq ($(REQ_KERNEL),)
-  @$(error go modules cannot build when REQ_KERNEL is set)
+ifneq ($(REQUIRE_KERNEL),)
+  @$(error go modules cannot build when REQUIRE_KERNEL is set)
 endif
 
-# Check if package supports ARCH
-ifneq ($(UNSUPPORTED_ARCHS),)
-  ifneq (,$(findstring $(ARCH),$(UNSUPPORTED_ARCHS)))
-    @$(error Arch '$(ARCH)' is not a supported architecture )
-  endif
-endif
-
-#####
+include ../../mk/spksrc.pre-check.mk
 
 include ../../mk/spksrc.cross-env.mk
 
@@ -117,9 +110,6 @@ clean:
 
 all: install plist
 
-### For make kernel-required (used by spksrc.spk.mk)
-include ../../mk/spksrc.kernel-required.mk
-
 ### For make digests
 include ../../mk/spksrc.generate-digests.mk
 
@@ -129,6 +119,10 @@ include ../../mk/spksrc.dependency-tree.mk
 .PHONY: all-archs
 all-archs: $(addprefix arch-,$(AVAILABLE_ARCHS))
 
+####
+
 arch-%:
 	@$(MSG) Building package for arch $*
 	-@MAKEFLAGS= $(MAKE) ARCH=$(basename $(subst -,.,$(basename $(subst .,,$*)))) TCVERSION=$(if $(findstring $*,$(basename $(subst -,.,$(basename $(subst .,,$*))))),$(DEFAULT_TC),$(notdir $(subst -,/,$*)))
+
+####

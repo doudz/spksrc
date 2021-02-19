@@ -1,9 +1,11 @@
 SPK_NAME = hassio
-SPK_VERS = 20191224
-SPK_REV = 1
+SPK_VERS = 20200910
+SPK_REV = 2
 SPK_ICON = src/$(SPK_NAME).png
 SPK_DEPENDS = "Docker>=18.09.0-0506"
 DSM_UI_DIR = app
+
+REQUIRED_DSM = 6.2
 
 DEPENDS =
 
@@ -14,7 +16,7 @@ STARTABLE = yes
 DISPLAY_NAME = Hass.io
 CHANGELOG = ""
 
-UNSUPPORTED_ARCHS = $(ARM_ARCHES) $(PPC_ARCHES) $(x86_ARCHES)
+UNSUPPORTED_ARCHS = $(ARM_ARCHS) $(PPC_ARCHS) $(i686_ARCHS)
 
 HOMEPAGE   = https://www.home-assistant.io/hassio/
 LICENSE    = Apache License 2.0

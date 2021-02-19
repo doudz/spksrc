@@ -1,4 +1,9 @@
 # include this file to install arch independent resources
+#
+# packages using this have to:
+# - implement a custom INSTALL_TARGET to copy the required files to the 
+#   target location under $(STAGING_INSTALL_PREFIX)
+# - create a PLIST file to include the target file(s)/folder(s)
 
 # Common makefiles
 include ../../mk/spksrc.common.mk
@@ -16,11 +21,10 @@ endif
 DIST_FILE     = $(DISTRIB_DIR)/$(LOCAL_FILE)
 DIST_EXT      = $(PKG_EXT)
 
-
 #####
 
-ifneq ($(REQ_KERNEL),)
-  @$(error install-resources cannot be used when REQ_KERNEL is set )
+ifneq ($(REQUIRE_KERNEL),)
+  @$(error install-resources cannot be used when REQUIRE_KERNEL is set)
 endif
 
 #####
@@ -88,30 +92,16 @@ $(DIGESTS_FILE): download
 	  echo "$(LOCAL_FILE) $$type `$$tool $(DIST_FILE) | cut -d\" \" -f1`" >> $@ ; \
 	done
 
-dependency-tree:
-	@echo `perl -e 'print "\\\t" x $(MAKELEVEL),"\n"'`+ $(NAME) $(PKG_VERS)
-	@for depend in $(BUILD_DEPENDS) $(DEPENDS) ; \
-	do \
-	  $(MAKE) --no-print-directory -C ../../$$depend dependency-tree ; \
-	done
+### For make dependency-tree
+include ../../mk/spksrc.dependency-tree.mk
 
 .PHONY: all-archs
-all-archs: $(addprefix arch-,$(AVAILABLE_ARCHS))
+all-archs: $(addprefix arch-,$(AVAILABLE_TOOLCHAINS))
+
+####
 
 arch-%:
 	@$(MSG) Building package for arch $*
 	-@MAKEFLAGS= $(MAKE) ARCH=$(basename $(subst -,.,$(basename $(subst .,,$*)))) TCVERSION=$(if $(findstring $*,$(basename $(subst -,.,$(basename $(subst .,,$*))))),$(DEFAULT_TC),$(notdir $(subst -,/,$*)))
 
-.PHONY: kernel-required
-kernel-required:
-	@if [ -n "$(REQ_KERNEL)" ]; then \
-	  exit 1 ; \
-	fi
-	@for depend in $(BUILD_DEPENDS) $(DEPENDS) ; do \
-	  if $(MAKE) --no-print-directory -C ../../$$depend kernel-required >/dev/null 2>&1 ; then \
-	    exit 0 ; \
-	  else \
-	    exit 1 ; \
-	  fi ; \
-	done
-
+####

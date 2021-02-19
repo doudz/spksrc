@@ -10,12 +10,12 @@ service_postinst() {
         HASSIO_DOCKER="homeassistant/amd64-hassio-supervisor"
 
         # Read infos from web
-        URL_VERSION="https://s3.amazonaws.com/hassio-version/stable.json"
+        URL_VERSION="https://version.home-assistant.io/stable.json"
         HASSIO_VERSION=$(curl -s $URL_VERSION | jq -e -r '.supervisor')
 
         # Pull supervisor image
         /usr/local/bin/docker pull "${HASSIO_DOCKER}:${HASSIO_VERSION}" >/dev/null &&
-            /usr/local/bin/docker tag "${HASSIO_DOCKER}:${HASSIO_VERSION}" "${HASSIO_DOCKER}:latest" >/dev/null
+        /usr/local/bin/docker tag "${HASSIO_DOCKER}:${HASSIO_VERSION}" "${HASSIO_DOCKER}:latest" >/dev/null
 
         if [ ! -f ${CFG_FILE} ]; then
             mkdir -p /usr/local/${SYNOPKG_PKGNAME}/etc 
@@ -32,14 +32,19 @@ service_preuninst() {
     if [ ${SYNOPKG_PKG_STATUS} == "UNINSTALL" ]; then
         HOMEASSISTANT="$(jq --raw-output '.homeassistant' ${CFG_FILE})"
         SUPERVISOR="$(jq --raw-output '.supervisor' ${CFG_FILE})"
-        HASSIO_DNS="$(docker inspect --format='{{.Image}}' HASSIO_DNS)"
         HASSIO_DATA="$(jq --raw-output '.data // "/usr/share/hassio"' ${CFG_FILE})"
 
-        docker rm --force hassio_supervisor hassio_dns
         if [ `docker inspect --format='{{.Config.Image}}' homeassistant|grep -q homeassistant/qemux86-64` ]; then
             docker rm --force homeassistant && docker image rm ${HOMEASSISTANT}
-        fi 
-        docker image rm ${SUPERVISOR} ${HASSIO_DNS}
+        fi
+
+        # Remove supervisor and extra containers.
+        docker rm --force hassio_supervisor && docker image rm ${SUPERVISOR}
+        for CONTAINER in "hassio_dns hassio_multicast hassio_cli hassio_audio hassio_observer"; do
+            IMAGE = docker inspect --format='{{.Image}}' $CONTAINER
+            docker rm --force $CONTAINER && docker image rm $IMAGE
+        done
+
         docker network rm hassio
 
         if [ "${wizard_remove_addons}" == "true" ]; then

@@ -19,6 +19,8 @@ DIST_EXT      = $(PKG_EXT)
 
 #####
 
+.NOTPARALLEL:
+
 include ../../mk/spksrc.native-env.mk
 
 include ../../mk/spksrc.download.mk
@@ -60,15 +62,4 @@ include ../../mk/spksrc.generate-digests.mk
 ### For make dependency-tree
 include ../../mk/spksrc.dependency-tree.mk
 
-.PHONY: kernel-required
-kernel-required:
-	@if [ -n "$(REQ_KERNEL)" ]; then \
-	  exit 1 ; \
-	fi
-	@for depend in $(DEPENDS) ; do \
-	  if $(MAKE) --no-print-directory -C ../../$$depend kernel-required >/dev/null 2>&1 ; then \
-	    exit 0 ; \
-	  else \
-	    exit 1 ; \
-	  fi ; \
-	done
+####
