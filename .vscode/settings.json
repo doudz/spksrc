@@ -4,5 +4,6 @@
         "**/packages/**": true,
         "**/work-*/**": true,
         "**/work/**": true
-    }
+    },
+    "restructuredtext.confPath": ""
 }
